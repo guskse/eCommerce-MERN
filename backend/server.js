@@ -4,28 +4,31 @@ import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
 
+import productRoutes from "./routes/productRoutes.js";
+
+//error middleware handlers
+import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+
+//mongoDB
+import connectDB from "./config/db.js";
+connectDB(); //connect to mongoDB
+
 //localhost:5000
 const port = process.env.PORT || 5000;
 
-//dummy data
-import products from "./data/products.js";
-
 const app = express();
 
-//routes
 app.get("/", (req, res) => {
   res.send("Api is Running...");
 });
 
-app.get("/api/products", (req, res) => {
-  res.json(products);
-});
-
-app.get("/api/products/:id", (req, res) => {
-  const product = products.find((p) => p._id === req.params.id);
-  res.json(product);
-});
+//routes
+app.use("/api/products", productRoutes);
 //
+
+//error handlers
+app.use(notFound);
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
